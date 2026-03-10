@@ -218,8 +218,8 @@ Each round creates a PR with metrics tables. Accepted rounds are squash-merged.
 Clone the repo and run Claude Code from the project root:
 
 ```bash
-git clone https://github.com/zhanlin-liu/GAMMA.git
-cd GAMMA
+git clone https://github.com/zhanlin-liu/EPOCH.git
+cd EPOCH
 claude
 ```
 
