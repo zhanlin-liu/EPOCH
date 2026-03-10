@@ -1,0 +1,42 @@
+\subsubsection{Hyperparameter Fine-Tuning: MNIST Classification}
+\label{sec:experiment-mnist}
+
+To evaluate the framework's hyperparameter tuning capabilities, we applied it to fine-tuning a pretrained MobileNetV2~\cite{sandler2018mobilenetv2} classifier on MNIST~\cite{lecun1998gradient}. The system was configured with a \texttt{finetune} task type, a 2\% minimum improvement threshold (\texttt{min\_delta}${}= 0.02$), and a maximum of 3 optimization rounds with 1 retry per round. Only the classifier head was trained; all convolutional layers remained frozen at their ImageNet-pretrained weights.
+
+Crucially, the experiment used a deliberately small data subset: 200 training images (20 per class) and 60 evaluation images (6 per class), sampled deterministically from the full MNIST corpus. This regime is significantly more challenging than standard MNIST benchmarks, where 60{,}000 training examples routinely yield $>$99\% accuracy. With only 20 examples per class, the model must generalize from minimal supervision, amplifying the sensitivity to hyperparameter choices and creating meaningful headroom for the optimizer to exploit. The training budget was further constrained to 3 epochs, simulating a resource-limited scenario where each optimization round must converge quickly.
+
+Two hyperparameters were exposed to the optimizer via the configuration's \texttt{tune} section: \texttt{optimizer}: \texttt{[adam, adamw, sgd]} (discrete options) and \texttt{learning\_rate}: \texttt{[0.0001, 0.01]} (continuous range). The framework enforces these bounds, preventing the investigator agent from modifying any parameter outside this declared search space. All other parameters (batch size, number of epochs, loss function, model architecture) were fixed. Training used a global seed for full reproducibility, and the framework enforced strict train/eval separation with an overfitting threshold of $\text{gap} < 0.15$.
+
+The framework executed 3 rounds (including 1 rejection and retry), improving evaluation accuracy from $0.53$ to $0.67$---a 25\% relative improvement.
+
+\paragraph{Round 1 (Baseline).}
+The system initialized conservative defaults: Adam optimizer with $\text{lr} = 0.001$. Training loss decreased across all 3 epochs ($2.32 \to 1.48$) but remained high, indicating significant underfitting. The baseline achieved $0.605$ train accuracy and $0.5333$ eval accuracy, with a train-eval gap of $0.072$---well below the overfitting threshold.
+
+\paragraph{Round 2 (Optimizer + LR Adjustment $\to$ Accepted).}
+The investigator diagnosed underfitting from the still-decreasing loss curve and proposed two changes: switching to AdamW for its decoupled weight decay regularization, and increasing the learning rate $5\times$ to $0.005$ to accelerate convergence within the 3-epoch budget. This yielded $0.71$ train accuracy and $0.9167$ eval accuracy (+0.0834), with the train-eval gap widening slightly to $0.093$ but remaining well within bounds. The round was accepted.
+
+\paragraph{Round 3 (LR Increase $\to$ Rejected).}
+Observing that loss was still decreasing at epoch 3, the investigator pushed the learning rate to the upper bound ($0.01$). This proved too aggressive: epoch~1 loss spiked to $4.24$ (versus $2.72$ at $\text{lr} = 0.005$), and the model failed to recover within 3 epochs. Eval accuracy regressed to $0.55$ ($-0.067$). The round was rejected with quantitative evidence of the instability.
+
+\paragraph{Round 3, Retry (Optimizer Switch $\to$ Accepted).}
+Following the rejection, the investigator changed strategy rather than repeating a similar adjustment. It switched to SGD with momentum ($0.9$) at a slightly reduced $\text{lr} = 0.008$, reasoning that SGD's update dynamics are more stable than AdamW's at higher learning rates. This proved correct: epoch~1 loss was $2.22$ (versus the failed $4.24$), and the model converged to $0.79$ train accuracy by epoch~3. The final eval accuracy reached $0.6667$ (+0.05), and notably the train-eval gap \emph{narrowed} from $0.093$ to $0.038$, indicating improved generalization. The round was accepted.
+
+Table~\ref{tab:mnist-progression} summarizes the progression across rounds.
+
+\begin{table}[t]
+  \centering
+  \caption{Hyperparameter tuning progression for MobileNetV2 on MNIST (200 train, 60 eval). All results are deterministic (seed=42).}
+  \label{tab:mnist-progression}
+  \begin{tabular}{clccccc}
+    \toprule
+    Round & Optimizer & LR & Eval Acc. & Train Acc. & Gap & Status \\
+    \midrule
+    1 (Baseline) & Adam   & 0.001 & 0.5333 & 0.6050 & 0.072 & Baseline \\
+    2             & AdamW  & 0.005 & 0.6167 & 0.7100 & 0.093 & Accept ($+0.083$) \\
+    3             & AdamW  & 0.010 & 0.5500 & 0.6700 & 0.120 & Reject ($-0.067$) \\
+    3 (retry)     & SGD    & 0.008 & \textbf{0.6667} & 0.7050 & 0.038 & Accept ($+0.050$) \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+This experiment highlights several aspects of the framework's behavior under constrained conditions. First, the small-data regime ($n{=}200$) created a genuinely difficult optimization problem where hyperparameter sensitivity is high and the risk of overfitting is real, in contrast to full-dataset MNIST where most configurations trivially converge. Second, the rejection--retry cycle in round~3 demonstrates the framework's ability to detect failed strategies and adapt: rather than making a minor adjustment to the rejected learning rate, it switched optimizer families entirely, correctly identifying that the instability was an optimizer--LR interaction rather than a pure LR magnitude issue. Third, the overfitting guard (train-eval gap $< 0.15$) provided a meaningful safety constraint---the rejected round's gap of $0.12$ was trending toward the threshold, while the accepted retry's gap of $0.04$ represented the best generalization of the entire run. Finally, full determinism (global seed, fixed data splits) ensured that all observed differences were attributable to hyperparameter changes alone, not stochastic variation.

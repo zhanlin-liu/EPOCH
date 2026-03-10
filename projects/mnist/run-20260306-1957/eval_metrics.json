@@ -1,0 +1,16 @@
+{
+  "train_accuracy": 0.705,
+  "train_loss": 1.1006,
+  "eval_accuracy": 0.6667,
+  "eval_loss": 1.4016,
+  "train_eval_gap": 0.0383,
+  "hyperparams": {
+    "optimizer": "sgd",
+    "learning_rate": 0.008
+  },
+  "config": {
+    "seed": 42,
+    "max_epochs": 3,
+    "num_classes": 10
+  }
+}

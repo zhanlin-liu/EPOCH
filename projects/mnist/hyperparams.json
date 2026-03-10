@@ -1,0 +1,9 @@
+{
+  "optimizer": "sgd",
+  "learning_rate": 0.008,
+  "metadata": {
+    "last_updated_round": 3,
+    "updated_by": "investigator",
+    "reason": "RETRY: LR=0.01 with AdamW caused instability. Switch to SGD+momentum (handles higher LR better) at LR=0.008 (between previous 0.005 and failed 0.01)."
+  }
+}

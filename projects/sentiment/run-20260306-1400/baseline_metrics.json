@@ -1,0 +1,10 @@
+{
+  "train_accuracy": 0.85,
+  "train_correct": 17,
+  "train_total": 20,
+  "train_failures": 3,
+  "eval_accuracy": 1.0,
+  "eval_correct": 12,
+  "eval_total": 12,
+  "eval_failures": 0
+}

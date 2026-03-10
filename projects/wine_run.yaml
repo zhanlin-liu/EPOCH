@@ -1,0 +1,30 @@
+# ==============================
+# EPOCH Run Configuration — Wine
+# ==============================
+
+project:
+  name: "Wine Cultivar Classifier"
+  slug: wine
+
+run:
+  id: null  # auto-generated: run-YYYYMMDD-HHMM
+  goal: "Classify wine cultivars based on chemical analysis using rules."
+  task_type: rule_based
+  max_rounds: 2
+  max_retries_per_round: 1
+
+env:
+  manager: uv
+  path: projects/wine  # uv project directory
+
+evaluation:
+  primary_metric: accuracy
+  min_delta: 0.01
+  deterministic: true
+  train_cmd: "python projects/wine/evaluate.py train"
+  eval_cmd: "python projects/wine/evaluate.py eval"
+
+git:
+  push_to_remote: true
+  create_prs: true
+  target_branch: develop

@@ -1,0 +1,98 @@
+[
+  {
+    "index": 0,
+    "text": "this is wild surreal stuff , but brilliant and the camera just kind of sits there and lets you look at this and its like you 're going from one room to the next and none of them have any relation to the other . ",
+    "expected": "positive",
+    "predicted": "positive",
+    "raw_response": "positive",
+    "correct": true
+  },
+  {
+    "index": 1,
+    "text": "add yet another hat to a talented head , clooney 's a good director . ",
+    "expected": "positive",
+    "predicted": "positive",
+    "raw_response": "positive",
+    "correct": true
+  },
+  {
+    "index": 2,
+    "text": "the problem with this film is that it lacks focus . ",
+    "expected": "negative",
+    "predicted": "negative",
+    "raw_response": "negative",
+    "correct": true
+  },
+  {
+    "index": 3,
+    "text": "by candidly detailing the politics involved in the creation of an extraordinary piece of music , ( jones ) calls our attention to the inherent conflict between commerce and creativity . ",
+    "expected": "positive",
+    "predicted": "positive",
+    "raw_response": "positive",
+    "correct": true
+  },
+  {
+    "index": 4,
+    "text": "it does nothing new with the old story , except to show fisticuffs in this sort of stop-go slow motion that makes the gang rumbles look like they 're being streamed over a 28k modem . ",
+    "expected": "negative",
+    "predicted": "negative",
+    "raw_response": "negative",
+    "correct": true
+  },
+  {
+    "index": 5,
+    "text": "rare birds has more than enough charm to make it memorable . ",
+    "expected": "positive",
+    "predicted": "positive",
+    "raw_response": "positive",
+    "correct": true
+  },
+  {
+    "index": 6,
+    "text": "while it 's genuinely cool to hear characters talk about early rap records ( sugar hill gang , etc. ) , the constant referencing of hip-hop arcana can alienate even the savviest audiences . ",
+    "expected": "negative",
+    "predicted": "negative",
+    "raw_response": "negative",
+    "correct": true
+  },
+  {
+    "index": 7,
+    "text": "instead of hiding pinocchio from critics , miramax should have hidden it from everyone . ",
+    "expected": "negative",
+    "predicted": "negative",
+    "raw_response": "negative",
+    "correct": true
+  },
+  {
+    "index": 8,
+    "text": "i can take infantile humor ... but this is the sort of infantile that makes you wonder about changing the director and writer 's diapers . ",
+    "expected": "negative",
+    "predicted": "negative",
+    "raw_response": "negative",
+    "correct": true
+  },
+  {
+    "index": 9,
+    "text": "it takes a strange kind of laziness to waste the talents of robert forster , anne meara , eugene levy , and reginald veljohnson all in the same movie . ",
+    "expected": "negative",
+    "predicted": "negative",
+    "raw_response": "negative",
+    "correct": true
+  },
+  {
+    "index": 10,
+    "text": "a gorgeous , witty , seductive movie . ",
+    "expected": "positive",
+    "predicted": "positive",
+    "raw_response": "positive",
+    "correct": true
+  },
+  {
+    "index": 11,
+    "text": "even if you do n't think ( kissinger 's ) any more guilty of criminal activity than most contemporary statesmen , he 'd sure make a courtroom trial great fun to watch . ",
+    "expected": "positive",
+    "predicted": "positive",
+    "raw_response": "positive",
+    "correct": true
+  }
+]

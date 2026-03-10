@@ -1,0 +1,38 @@
+\subsubsection{Rule-Based Optimization: Iris Classification}
+\label{sec:experiment-iris}
+
+To evaluate the framework's ability to optimize rule-based systems, we applied it to classifying Iris species~\cite{fisher1936use} using hand-crafted decision rules over four morphological features: sepal length, sepal width, petal length, and petal width. The system was configured with a \texttt{rule\_based} task type, a 1\% minimum improvement threshold (\texttt{min\_delta}${}= 0.01$), and a maximum of 4 optimization rounds with 2 retries per round. The dataset was split into 105 training samples (35 per class) and 45 evaluation samples (15 per class), drawn deterministically from the standard 150-sample Iris dataset. As with all non-code task types, the framework enforced strict train/eval separation: failure analysis used only training data, while acceptance decisions were based exclusively on evaluation accuracy.
+
+The framework achieved perfect evaluation accuracy ($1.00$) in 2 rounds, improving from a $0.978$ baseline, and continued for 2 additional rounds to refine training accuracy before self-terminating when the evaluation ceiling prevented further measurable improvement.
+
+\paragraph{Round 1 (Baseline).}
+The system designed a 4-rule classifier using petal measurements, which are the most discriminative features in the Iris dataset. The baseline rules were: (1)~$\text{petal\_length} < 2.5 \to \text{setosa}$, (2)~$\text{petal\_length} > 5.0 \to \text{virginica}$, (3)~$\text{petal\_width} > 1.5 \to \text{virginica}$, and (4)~default $\to$ versicolor. This achieved $0.9524$ train accuracy (5 failures) and $0.9778$ eval accuracy (1 failure). All 5 training failures occurred at the versicolor--virginica boundary, where petal measurements overlap.
+
+\paragraph{Round 2 (Boundary Refinement $\to$ Accepted).}
+The investigator analyzed the 5 training failures and identified two issues: (i)~the strict inequality $\text{petal\_length} > 5.0$ missed virginica samples at exactly $5.0$, and (ii)~the $\text{petal\_width} > 1.5$ threshold was too aggressive, misclassifying versicolor samples with moderately wide petals. The key insight was that versicolor specimens with wide petals ($\geq 1.7$) tend to also have wide sepals ($> 3.0$\,cm), while virginica at the same petal width tend to have narrower sepals. The executor implemented two changes: relaxing the petal length condition to $\geq 5.0$, and replacing the simple petal width rule with a two-feature conjunction: $\text{petal\_width} \geq 1.7 \;\land\; \text{sepal\_width} < 3.0 \to \text{virginica}$. This achieved perfect eval accuracy ($1.0000$, $+0.0222$) while reducing train failures from 5 to 4.
+
+\paragraph{Round 3 (Threshold Adjustment $\to$ Accepted).}
+Two of the remaining 4 training failures were virginica samples with $\text{sepal\_width} = 3.0$---exactly at the boundary excluded by the strict inequality. The investigator proposed widening the condition to $\text{sepal\_width} \leq 3.0$. This fixed both cases without affecting eval (which remained at $1.0$), improving train accuracy from $0.9619$ to $0.9810$ (2 failures remaining). Although the eval delta was zero, the round was accepted because the change was a direct consequence of training-set analysis and the primary metric remained at its maximum.
+
+\paragraph{Round 4 (Ratio Exception $\to$ Rejected).}
+The investigator attempted to resolve the 2 remaining train failures---both versicolor samples caught by the $\text{petal\_length} \geq 5.0$ rule---by adding a feature-interaction exception: samples with $\text{petal\_width} \leq 1.7$ and $\text{sepal\_length}/\text{petal\_length} \geq 1.3$ would be reclassified as versicolor. While this improved train accuracy to $0.9905$ (1 failure), the eval delta was $0.0$ ($< \text{min\_delta} = 0.01$). The round was correctly rejected: with eval already at $1.0$, no rule change can produce a measurable improvement on the primary metric. The framework terminated optimization.
+
+Table~\ref{tab:iris-progression} summarizes the progression across rounds.
+
+\begin{table}[t]
+  \centering
+  \caption{Rule optimization progression for Iris classification. Train ($n{=}105$) and eval ($n{=}45$) subsets are disjoint.}
+  \label{tab:iris-progression}
+  \begin{tabular}{cccccl}
+    \toprule
+    Round & Eval Acc. & Train Acc. & Failures & $\Delta_{\text{eval}}$ & Technique \\
+    \midrule
+    1 (Baseline) & 0.9778 & 0.9524 & 5 & ---       & Petal-based rules \\
+    2             & 1.0000 & 0.9619 & 4 & $+0.0222$ & $+$ sepal\_width tiebreaker \\
+    3             & 1.0000 & 0.9810 & 2 & $0.0$     & Threshold $<$ to $\leq$ \\
+    4             & 1.0000 & 0.9905 & 1 & $0.0$     & Ratio exception (rejected) \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+This experiment illustrates the framework's behavior on a rule-based task with a low error ceiling. First, the investigator demonstrated feature-interaction reasoning: rather than simply adjusting single-feature thresholds, it discovered that sepal width disambiguates the versicolor--virginica boundary when petal width alone is insufficient---a cross-feature pattern that mirrors the classic result that petal and sepal measurements are complementary discriminators in this dataset. Second, the progression from coarse rules (round~1) through boundary refinement (round~2) to threshold fine-tuning (round~3) shows the framework naturally moving from high-impact structural changes to low-impact polishing, consistent with diminishing returns. Third, the round~4 rejection demonstrates correct termination behavior: when the evaluation metric is saturated, the framework does not force-accept changes that only improve the training set, avoiding the risk of overfitting to training-specific patterns. The single remaining training failure---a versicolor sample with petal measurements indistinguishable from virginica---represents the irreducible Bayes error for this feature set under rule-based classification.

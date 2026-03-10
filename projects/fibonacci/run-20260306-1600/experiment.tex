@@ -1,0 +1,46 @@
+\subsubsection{Iterative Code Optimization: Fibonacci Calculator}
+\label{sec:experiment-fibonacci}
+
+To evaluate the framework's ability to drive multi-round code optimization, we applied it to a Fibonacci CLI calculator tasked with computing $\mathrm{fib}(n)$ for large $n$ (up to $10^6$) within a 2-second wall-clock budget. The system was configured with a \texttt{code\_improvement} task type, a 5\% minimum improvement threshold per round, and a maximum of 5 optimization rounds. All 19 tests---spanning correctness checks (known values for $n \in \{0, 1, \ldots, 1000\}$, negative input rejection) and performance constraints ($\mathrm{fib}(10^4)$ through $\mathrm{fib}(10^6)$ each under 2 seconds)---were visible to the optimizer throughout. No train/eval split was applied.
+
+The framework autonomously executed 4 accepted rounds, transitioning from a correctness phase (rounds 1--2) to a performance phase (rounds 3--4), and terminated at round 5 upon determining no further Python-level optimization was possible.
+
+\paragraph{Round 1 (Baseline).}
+The system scaffolded a naive iterative $O(n)$ implementation. The baseline passed 17 of 19 tests (89.5\%), failing the two largest performance tests: $\mathrm{fib}(500{,}000)$ required 2.10\,s and $\mathrm{fib}(1{,}000{,}000)$ required 8.42\,s, both exceeding the 2\,s timeout.
+
+\paragraph{Round 2 (Correctness $\to$ Accepted).}
+The system identified that the bottleneck was $O(n)$ big-integer additions, where each addition operates on increasingly large operands, yielding an effective $O(n \cdot d)$ cost in digit count $d$. It replaced the iterative loop with a fast doubling algorithm exploiting the identities
+\begin{align}
+  \mathrm{fib}(2k) &= \mathrm{fib}(k) \cdot \bigl[2 \cdot \mathrm{fib}(k+1) - \mathrm{fib}(k)\bigr], \\
+  \mathrm{fib}(2k+1) &= \mathrm{fib}(k)^2 + \mathrm{fib}(k+1)^2,
+\end{align}
+reducing complexity to $O(\log n)$ multiplications. This brought all 19 tests to passing, with $\mathrm{fib}(10^6)$ dropping from 8.42\,s to 34.3\,ms (a $245\times$ improvement).
+
+\paragraph{Round 3 (Performance $\to$ Accepted).}
+With all tests passing, the system transitioned to performance optimization. It identified Python's built-in arbitrary-precision integer multiplication as the remaining bottleneck and introduced the \texttt{gmpy2} library, which delegates big-integer arithmetic to GMP (GNU Multiple Precision Arithmetic Library). Using GMP-backed \texttt{mpz} types within the same fast doubling algorithm yielded an additional $14.4\times$ speedup on $\mathrm{fib}(10^6)$, reducing execution time from 34.3\,ms to 2.39\,ms.
+
+\paragraph{Round 4 (Performance $\to$ Accepted).}
+The system discovered that \texttt{gmpy2} exposes GMP's native \texttt{mpz\_fib\_ui} function, which implements an internally optimized Fibonacci computation with tuned thresholds for basecase, Karatsuba, and FFT multiplication. Replacing the Python-level fast doubling loop with a single call to \texttt{gmpy2.fib()} yielded a further $1.8\times$ improvement, bringing $\mathrm{fib}(10^6)$ to 1.33\,ms.
+
+\paragraph{Round 5 (Investigation $\to$ Terminated).}
+Profiling revealed that 98\% of execution time was spent inside GMP's C/assembly code, with Python-to-C conversion overhead accounting for less than 0.07\,ms. The system correctly concluded that no further Python-level optimization could yield a meaningful ($\geq$5\%) improvement and terminated the run.
+
+Table~\ref{tab:fibonacci-progression} summarizes the progression across rounds.
+
+\begin{table}[t]
+  \centering
+  \caption{Performance progression across optimization rounds for the Fibonacci calculator. Execution times are median values over 10 runs.}
+  \label{tab:fibonacci-progression}
+  \begin{tabular}{clcccc}
+    \toprule
+    Round & Tests & $\mathrm{fib}(10^5)$ & $\mathrm{fib}(5 \!\times\! 10^5)$ & $\mathrm{fib}(10^6)$ & Technique \\
+    \midrule
+    1 (Baseline) & 17/19 & 94\,ms    & 2{,}096\,ms & 8{,}420\,ms & Iterative $O(n)$ \\
+    2            & 19/19 & 1.00\,ms  & 11.7\,ms    & 34.3\,ms    & Fast doubling $O(\log n)$ \\
+    3            & 19/19 & 0.16\,ms  & 1.31\,ms    & 2.39\,ms    & $+$ \texttt{gmpy2} \texttt{mpz} types \\
+    4            & 19/19 & 0.07\,ms  & 0.64\,ms    & 1.33\,ms    & $+$ \texttt{gmpy2.fib()} built-in \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Over 4 rounds, the framework achieved a cumulative $6{,}331\times$ speedup on $\mathrm{fib}(10^6)$ while maintaining 100\% test correctness. Notably, the system autonomously managed the phase transition from correctness to performance optimization, selected progressively more aggressive strategies (algorithmic improvement $\to$ library-accelerated arithmetic $\to$ native GMP delegation), and self-terminated when profiling evidence indicated diminishing returns---all without human intervention beyond the initial configuration.

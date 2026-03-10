@@ -1,0 +1,10 @@
+{"amount": 45, "frequency": 1, "new_location": false, "label": "legitimate"}
+{"amount": 2800, "frequency": 1, "new_location": false, "label": "fraud"}
+{"amount": 120, "frequency": 1, "new_location": false, "label": "legitimate"}
+{"amount": 4800, "frequency": 1, "new_location": true, "label": "fraud"}
+{"amount": 65, "frequency": 16, "new_location": false, "label": "fraud"}
+{"amount": 180, "frequency": 1, "new_location": false, "label": "legitimate"}
+{"amount": 1800, "frequency": 1, "new_location": false, "label": "legitimate"}
+{"amount": 55, "frequency": 22, "new_location": true, "label": "fraud"}
+{"amount": 350, "frequency": 2, "new_location": false, "label": "legitimate"}
+{"amount": 3500, "frequency": 1, "new_location": false, "label": "fraud"}
