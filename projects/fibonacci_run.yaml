@@ -1,0 +1,27 @@
+project:
+  name: "Fibonacci CLI Optimizer"
+  slug: fibonacci
+
+run:
+  id: run-20260306-1600
+  goal: "Optimize CLI Fibonacci calculator for speed with large N support"
+  task_type: code_improvement
+  max_rounds: 5
+  max_retries_per_round: 1
+
+env:
+  manager: uv
+  path: "projects/fibonacci"
+
+evaluation:
+  primary_metric: execution_time
+  min_delta: 0.05
+  deterministic: true
+  cmd: "python projects/fibonacci/fib.py"
+  test_cmd: "pytest projects/fibonacci/tests/test_fib.py"
+  max_per_test_time_out: 2s
+
+git:
+  push_to_remote: true
+  create_prs: true
+  target_branch: develop

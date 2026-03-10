@@ -93,7 +93,7 @@ skills/
 
 ## Writing a Config
 
-Create `projects/<slug>_run.yaml`:
+Create `projects/<slug>_run.yaml`. See [`projects/`](projects/) for example configs.
 
 ### ML Tasks (prompt_tune, finetune, rule_based)
 
