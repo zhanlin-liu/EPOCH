@@ -1,6 +1,25 @@
 # EPOCH
 
-Multi-round optimization framework powered by a single [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skill. EPOCH runs iterative optimize-evaluate loops: investigate failures, implement a fix, evaluate the result, accept or reject with evidence, repeat.
+Multi-round optimization framework powered by a [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugin skill. EPOCH runs iterative optimize-evaluate loops: investigate failures, implement a fix, evaluate the result, accept or reject with evidence, repeat.
+
+## Installation
+
+### As a Plugin
+
+```bash
+/plugin marketplace add zhanlin-liu/EPOCH
+/plugin install epoch
+```
+
+Then use `/epoch` in any project.
+
+### From Source
+
+```bash
+git clone https://github.com/zhanlin-liu/EPOCH.git
+cd EPOCH
+claude
+```
 
 ## Quick Start
 
@@ -47,6 +66,30 @@ Each round produces:
 - A git branch (`epoch/<slug>/<run-id>/round-N`)
 - A pull request with metrics tables and evidence
 - Structured JSON artifacts (`baseline_metrics.json`, `delta_round_N.json`)
+
+## Plugin Structure
+
+```
+.claude-plugin/
+└── plugin.json
+skills/
+└── epoch/
+    ├── SKILL.md                    # Entry point — dispatches by task_type
+    ├── agents/                     # Role definitions
+    │   ├── orchestrator.md
+    │   ├── investigator.md
+    │   ├── executor.md
+    │   ├── baseline_executor.md
+    │   ├── seed_planner.md
+    │   └── reviewer.md
+    └── references/                 # Task-type workflows
+        ├── prompt_tune.md
+        ├── finetune.md
+        ├── rule_based.md
+        ├── code_improvement.md
+        ├── create_project.md
+        └── create_skill.md
+```
 
 ## Writing a Config
 
@@ -142,26 +185,6 @@ tune:
   strategy: ["few shots", "chain of thought"]
 ```
 
-## Project Structure
-
-```
-projects/
-├── my_project_run.yaml              # EPOCH config
-└── my_project/
-    ├── evaluate.py                  # Evaluation script (train/eval splits)
-    ├── prepare_data.py              # Data preparation (optional)
-    ├── rules/rules.py               # Rule-based: rule definitions
-    ├── src/prompts/                  # Prompt tuning: prompt files
-    ├── hyperparams.json              # Finetune: tunable parameters
-    └── run-YYYYMMDD-HHMM/           # Run artifacts
-        ├── baseline_metrics.json
-        ├── delta_round_N.json
-        ├── train_results.json
-        ├── eval_results.json
-        ├── pr_body.md
-        └── run_summary.md
-```
-
 ## Key Concepts
 
 ### Train/Eval Separation
@@ -202,25 +225,15 @@ Each round creates a PR with metrics tables. Accepted rounds are squash-merged.
 
 | Project | Task Type | Result |
 |---------|-----------|--------|
-| Fibonacci | `code_improvement` | 6,331× speedup in 4 rounds |
+| Fibonacci | `code_improvement` | 6,331x speedup in 4 rounds |
 | Sentiment (GPT-4.1-nano) | `prompt_tune` | 0.83 → 1.00 eval accuracy in 3 rounds |
 | MNIST (MobileNetV2) | `finetune` | 0.53 → 0.67 eval accuracy in 3 rounds |
 | Iris | `rule_based` | 0.98 → 1.00 eval accuracy in 2 rounds |
+
+Demo code is available on the [`examples/demo-projects`](https://github.com/zhanlin-liu/EPOCH/tree/examples/demo-projects) branch.
 
 ## Requirements
 
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI
 - [uv](https://docs.astral.sh/uv/) package manager
 - Git with GitHub CLI (`gh`) for PR management
-
-## Installation
-
-Clone the repo and run Claude Code from the project root:
-
-```bash
-git clone https://github.com/zhanlin-liu/EPOCH.git
-cd EPOCH
-claude
-```
-
-The EPOCH skill is automatically available via `/epoch`.

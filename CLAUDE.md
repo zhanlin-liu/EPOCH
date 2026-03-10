@@ -1,24 +1,26 @@
 # EPOCH
 
-Multi-round optimization framework powered by a single Claude Code skill.
+Multi-round optimization framework distributed as a Claude Code plugin.
 
 ## What This Is
 
-EPOCH is a `.claude/skills/epoch/` skill that runs iterative optimize-evaluate loops. Given an `epoch_run.yaml` config, it dispatches to the right workflow, investigates failures, implements fixes, evaluates results, and accepts or rejects with evidence — round by round.
+EPOCH is a Claude Code plugin (`skills/epoch/`) that runs iterative optimize-evaluate loops. Given an `epoch_run.yaml` config, it dispatches to the right workflow, investigates failures, implements fixes, evaluates results, and accepts or rejects with evidence — round by round.
 
 ## Repository Structure
 
 ```
-.claude/skills/epoch/
-├── SKILL.md                    # Entry point — dispatches by task_type
-├── agents/                     # Role definitions (orchestrator, investigator, executor, reviewer, etc.)
-└── references/                 # Task-type workflows
-    ├── prompt_tune.md          # Optimize LLM prompts
-    ├── finetune.md             # Tune ML hyperparameters
-    ├── rule_based.md           # Optimize rule-based systems
-    ├── code_improvement.md     # Fix bugs, optimize performance
-    └── create_skill.md         # Generate custom task-type references
-projects/                       # Project configs (epoch_run.yaml per project)
+.claude-plugin/
+└── plugin.json                 # Plugin manifest
+skills/
+└── epoch/
+    ├── SKILL.md                # Entry point — dispatches by task_type
+    ├── agents/                 # Role definitions (orchestrator, investigator, executor, reviewer, etc.)
+    └── references/             # Task-type workflows
+        ├── prompt_tune.md      # Optimize LLM prompts
+        ├── finetune.md         # Tune ML hyperparameters
+        ├── rule_based.md       # Optimize rule-based systems
+        ├── code_improvement.md # Fix bugs, optimize performance
+        └── create_skill.md     # Generate custom task-type references
 ```
 
 ## How It Works

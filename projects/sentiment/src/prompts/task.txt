@@ -1,5 +1,0 @@
-Classify the sentiment of the following text as "positive" or "negative".
-
-Text: {text}
-
-Sentiment:
