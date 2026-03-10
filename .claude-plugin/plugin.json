@@ -2,8 +2,7 @@
   "name": "epoch",
   "description": "Multi-round optimization framework for prompts, rules, hyperparameters, and code through evidence-based iteration",
   "version": "1.0.0",
-  "authors": [
-    { "name": "Zhanlin Liu" },
-    { "name": "Yitao Li" }
-  ]
+  "author": {
+    "name": "Zhanlin Liu"
+  }
 }
