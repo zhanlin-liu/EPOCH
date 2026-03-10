@@ -1,10 +1,10 @@
 # EPOCH
 
-Multi-round optimization framework powered by a [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugin skill. EPOCH runs iterative optimize-evaluate loops: investigate failures, implement a fix, evaluate the result, accept or reject with evidence, repeat.
+Multi-round optimization framework that runs iterative optimize-evaluate loops: investigate failures, implement a fix, evaluate the result, accept or reject with evidence, repeat. Works with both [Claude Code](https://docs.anthropic.com/en/docs/claude-code) and [OpenAI Codex](https://github.com/openai/codex).
 
 ## Installation
 
-### As a Plugin
+### Claude Code
 
 ```bash
 /plugin marketplace add zhanlin-liu/EPOCH
@@ -13,12 +13,20 @@ Multi-round optimization framework powered by a [Claude Code](https://docs.anthr
 
 Then use `/epoch` in any project.
 
+### OpenAI Codex
+
+```
+$skill-installer install https://github.com/zhanlin-liu/EPOCH/tree/main/skills/epoch
+```
+
+Restart Codex after installation, then use `/epoch`.
+
 ### From Source
 
 ```bash
 git clone https://github.com/zhanlin-liu/EPOCH.git
 cd EPOCH
-claude
+claude  # or codex
 ```
 
 ## Quick Start
