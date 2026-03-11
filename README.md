@@ -224,3 +224,16 @@ claude
 ```
 
 The EPOCH skill is automatically available via `/epoch`.
+
+## Citation
+
+If you use EPOCH in your research, please cite:
+
+```bibtex
+@article{liu2026epoch,
+  title={EPOCH: An Agentic Protocol for Multi-Round System Optimization},
+  author={Liu, Zhanlin and Li, Yitao and Srikanth, Munirathnam},
+  journal={arXiv preprint arXiv:2603.09049},
+  year={2026}
+}
+```

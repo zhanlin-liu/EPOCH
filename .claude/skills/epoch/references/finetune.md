@@ -43,13 +43,7 @@ This skill tunes model hyperparameters through iterative adjustment guided by tr
 
 ### Workflow Steps
 
-**Step 0: Initialize**
-```bash
-git status
-python epoch/generate_eval_command.py --config epoch/epoch_run.yaml
-```
-
-**Step 1: For Each Round (1 to N)**
+**For Each Round (1 to N):**
 
 1. Create/reuse branch (same as prompt tuning)
 2. Round 1: Baseline establishment
