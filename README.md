@@ -240,6 +240,19 @@ Each round creates a PR with metrics tables. Accepted rounds are squash-merged.
 
 Demo code is available on the [`examples/demo-projects`](https://github.com/zhanlin-liu/EPOCH/tree/examples/demo-projects) branch.
 
+## Citation
+
+If you use EPOCH in your research, please cite:
+
+```bibtex
+@article{liu2026epoch,
+  title={EPOCH: An Agentic Protocol for Multi-Round System Optimization},
+  author={Liu, Zhanlin and Li, Yitao and Srikanth, Munirathnam},
+  journal={arXiv preprint arXiv:2603.09049},
+  year={2026}
+}
+```
+
 ## Requirements
 
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI
