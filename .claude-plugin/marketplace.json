@@ -1,7 +1,8 @@
 {
   "name": "zhanlin-liu-epoch",
   "owner": {
-    "name": "Zhanlin Liu"
+    "name": "Zhanlin Liu",
+    "email": "zhanlin@prorata.ai"
   },
   "plugins": [
     {
@@ -10,8 +11,11 @@
       "description": "Multi-round optimization framework for prompts, rules, hyperparameters, and code through evidence-based iteration",
       "version": "1.0.0",
       "author": {
-        "name": "Zhanlin Liu, Yitao Li"
-      }
+        "name": "Zhanlin Liu, Yitao Li",
+        "email": "zhanlin@prorata.ai"
+      },
+      "category": "development",
+      "homepage": "https://github.com/zhanlin-liu/EPOCH"
     }
   ]
 }

@@ -7,8 +7,8 @@ Multi-round optimization framework that runs iterative optimize-evaluate loops: 
 ### Claude Code
 
 ```bash
-/plugin marketplace add zhanlin-liu/EPOCH
-/plugin install epoch
+claude plugin marketplace add zhanlin-liu/EPOCH
+claude plugin install epoch@zhanlin-liu-epoch
 ```
 
 Then use `/epoch` in any project.
