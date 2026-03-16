@@ -1,0 +1,18 @@
+{
+  "round": 1,
+  "phase": "correctness",
+  "implementation": "iterative O(n)",
+  "tests_passed": 21,
+  "tests_failed": 2,
+  "tests_total": 23,
+  "pass_rate": 0.913,
+  "failed_tests": [
+    "TestPerformance::test_fib_500000 — Timeout >2s",
+    "TestPerformance::test_fib_1000000 — Timeout >2s"
+  ],
+  "execution_time_ms": {
+    "fib_100000": 94.2,
+    "note": "fib(500000) and fib(1000000) exceed 2s timeout"
+  },
+  "root_cause": "Iterative O(n) Python loop with big integer addition is O(n * digit_length) = O(n^2) in practice for large N due to growing integer sizes"
+}
