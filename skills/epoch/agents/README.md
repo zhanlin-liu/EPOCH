@@ -36,13 +36,16 @@ measures against.
 
 **Coordinates the multi-round workflow.** The only agent that touches branch and PR state.
 
-- **Owns**: branch creation/reuse, `gh pr create/close/merge`, round sequencing, retry logic.
+- **Owns**: project creation (no-config bootstrap), branch creation/reuse, `gh pr create/close/merge`, round sequencing, retry logic.
 - **Cannot**: `git add/commit` (executor's job), run EVAL (evaluator's job), decide accept/reject (reviewer's job).
-- **Input**: `epoch_run.yaml`.
+- **Input**: `epoch_run.yaml` — or, when none is provided, the user's task description.
 - **Output**: per-round branches, PRs, and the final run-summary report.
 
-The orchestrator never does the substantive work of a round — it delegates each stage and
-acts on the reviewer's decision (merge on accept, retry or close on reject).
+When invoked with no config (`/epoch` alone, or a task described in conversation), the
+orchestrator runs **Phase 0** first: it loads the `create-project` skill to interview the
+user, scaffold `epoch_run.yaml` + the project, and validate it — then proceeds into the loop.
+Otherwise it never does the substantive work of a round — it delegates each stage and acts
+on the reviewer's decision (merge on accept, retry or close on reject).
 
 ## Investigator
 
