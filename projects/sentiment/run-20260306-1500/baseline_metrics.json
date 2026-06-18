@@ -1,0 +1,16 @@
+{
+  "train_accuracy": 0.85,
+  "eval_accuracy": 0.8333,
+  "train": {
+    "split": "train",
+    "accuracy": 0.85,
+    "correct": 17,
+    "total": 20
+  },
+  "eval": {
+    "split": "eval",
+    "accuracy": 0.8333,
+    "correct": 10,
+    "total": 12
+  }
+}

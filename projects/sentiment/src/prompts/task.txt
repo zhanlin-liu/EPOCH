@@ -1,0 +1,6 @@
+Classify the sentiment of the following movie review as either positive or negative.
+Respond with only one word: positive or negative.
+
+Review: {text}
+
+Sentiment:
