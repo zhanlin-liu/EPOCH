@@ -1,9 +1,7 @@
 Classify the sentiment of the following movie review as either positive or negative.
 
-Important: Base your classification on the overall sentiment conveyed, not on individual negative-sounding words. Phrases like "the film's strength is not in X but in Y" or nostalgic references to something past can still express positive sentiment. If the text is ambiguous or very short, lean toward the sentiment most consistent with the overall tone or implication.
-
-Respond with only one word: positive or negative.
+Think step by step: in 1-3 sentences, identify what the review is expressing — consider the overall rhetorical direction, any contrast structures, and the implied attitude toward the subject. Then, on its own final line, output exactly one word: positive or negative.
 
 Review: {text}
 
-Sentiment:
+Reasoning and sentiment:
