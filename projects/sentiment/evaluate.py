@@ -43,19 +43,23 @@ def read_split(split):
 
 
 def parse_label(text):
-    t = text.strip().lower()
-    has_pos = "positive" in t
-    has_neg = "negative" in t
-    if has_pos and not has_neg:
-        return "positive"
-    if has_neg and not has_pos:
-        return "negative"
-    # fall back to first token
-    first = t.split()[0] if t.split() else ""
-    if first.startswith("pos"):
-        return "positive"
-    if first.startswith("neg"):
-        return "negative"
+    # Prefer the last non-empty line so chain-of-thought replies (reasoning
+    # followed by a single-word verdict line) parse correctly. Single-word
+    # replies are unaffected (the only line is the verdict).
+    lines = [ln.strip().lower() for ln in text.splitlines() if ln.strip()]
+    candidates = ([lines[-1]] if lines else []) + [text.strip().lower()]
+    for t in candidates:
+        has_pos = "positive" in t
+        has_neg = "negative" in t
+        if has_pos and not has_neg:
+            return "positive"
+        if has_neg and not has_pos:
+            return "negative"
+        first = t.split()[0] if t.split() else ""
+        if first.startswith("pos"):
+            return "positive"
+        if first.startswith("neg"):
+            return "negative"
     return "unknown"
 
 

@@ -1,0 +1,7 @@
+{
+  "eval_accuracy": {
+    "baseline": 0.8333,
+    "proposed": 0.8333,
+    "delta": 0.0
+  }
+}

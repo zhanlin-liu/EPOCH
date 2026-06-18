@@ -1,0 +1,17 @@
+{
+  "correct": {
+    "baseline": null,
+    "proposed": 10,
+    "delta": null
+  },
+  "eval_accuracy": {
+    "baseline": 0.8333,
+    "proposed": 0.8333,
+    "delta": 0.0
+  },
+  "total": {
+    "baseline": null,
+    "proposed": 12,
+    "delta": null
+  }
+}
