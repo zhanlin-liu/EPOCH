@@ -57,7 +57,7 @@ the agent must use for that stage. Default mapping:
 | Agent | Skill(s) to point it at | Notes |
 |-------|------------------------|-------|
 | Investigator | the task-type investigation skill (see below) | Pick by `run.task_type`. |
-| Executor | `code-writing` + `github`; for `prompt_tune`, the chosen `pt-*` method skill | Runs the investigator's chosen method, then commits. |
+| Executor | `code-writing` + `github`; for `prompt_tune`, the chosen `prompt-tuning` method | Runs the investigator's chosen method script, then commits. |
 | Evaluator | `ml-evaluation` | EVAL split only; produces metrics + delta artifacts. |
 | Reviewer | (none) | Decides on the evaluator's artifacts; needs no tool skill. |
 | Orchestrator (you) | `create-project` (Phase 0, no-config only), `github` | `create-project` to bootstrap; `github` for branches/PRs/merges. |
@@ -72,11 +72,11 @@ Investigation skill by `task_type`:
 | `code_improvement` | `code-improvement` |
 
 **prompt_tune is method-based.** The `prompt-tuning` router does not edit prompts — the
-investigator uses it to pick ONE method (`pt-few-shot`, `pt-chain-of-thought`,
-`pt-system-refinement`, `pt-dspy`, `pt-gepa`) as the round's hypothesis. The executor then
-loads that method skill and runs its `scripts/optimize.py` (standard optimizer contract:
-TRAIN-only, writes prompt files + `optimize_report.json`), then commits. Heavy methods
-(`pt-dspy`, `pt-gepa`) require `uv add` of their dep first.
+investigator uses it to pick ONE method (few-shot, chain-of-thought, system-refinement,
+dspy, gepa; see `prompt-tuning/methods/`) as the round's hypothesis. The executor then runs
+that method's script under `prompt-tuning/scripts/` (standard optimizer contract: TRAIN-only,
+writes prompt files + `optimize_report.json`), then commits. Heavy methods (dspy, gepa)
+require `uv add` of their dep first.
 
 Skills live under `.claude/skills/` and are the agents' hands-on techniques; the deeper
 per-round workflow for each task type stays in `skills/epoch/references/`. Override the

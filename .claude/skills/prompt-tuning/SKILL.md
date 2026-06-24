@@ -19,13 +19,15 @@ round's hypothesis), and the executor runs that method's optimizer.
 
 ## Methods
 
-| Method | Skill | Best when | Cost |
-|--------|-------|-----------|------|
-| Few-shot | `pt-few-shot` | Model understands the task but needs concrete examples; format drift | ~0–K calls |
-| Chain-of-thought | `pt-chain-of-thought` | Failures need multi-step reasoning (negation, contrast, comparison) | 0 |
-| System refinement | `pt-system-refinement` | Instructions are vague/ambiguous; a targeted rewrite would help | a few calls |
-| DSPy | `pt-dspy` | Want automatic joint instruction + few-shot optimization, larger budget | high (100s) |
-| GEPA | `pt-gepa` | Hard task, want reflective evolution from failure traces; highest ceiling | high (100s) |
+Each method has a doc under `methods/` and a runner under `scripts/`.
+
+| Method | Doc | Script | Best when | Cost |
+|--------|-----|--------|-----------|------|
+| Few-shot | `methods/few-shot.md` | `scripts/few_shot.py` | Model understands the task but needs concrete examples; format drift | ~0–K calls |
+| Chain-of-thought | `methods/chain-of-thought.md` | `scripts/chain_of_thought.py` | Failures need multi-step reasoning (negation, contrast, comparison) | 0 |
+| System refinement | `methods/system-refinement.md` | `scripts/system_refinement.py` | Instructions are vague/ambiguous; a targeted rewrite would help | a few calls |
+| DSPy | `methods/dspy.md` | `scripts/dspy_optimize.py` | Automatic joint instruction + few-shot optimization, larger budget | high (100s) |
+| GEPA | `methods/gepa.md` | `scripts/gepa_optimize.py` | Hard task, reflective evolution from failure traces; highest ceiling | high (100s) |
 
 ## Selection Guide (investigator)
 
@@ -48,11 +50,11 @@ the rejected attempt.
 
 ## Shared Optimizer Contract
 
-Every method skill ships `scripts/optimize.py` with the SAME interface, so the executor runs
-any method identically:
+Every method script under `scripts/` takes the SAME interface, so the executor runs any
+method identically (only the script name changes):
 
 ```bash
-python <method-skill>/scripts/optimize.py \
+python .claude/skills/prompt-tuning/scripts/<method>.py \
   --project projects/<slug> \
   --train   projects/<slug>/data/train.jsonl \
   --prompts projects/<slug>/src/prompts \
