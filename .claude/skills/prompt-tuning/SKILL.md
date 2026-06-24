@@ -1,50 +1,83 @@
 ---
 name: prompt-tuning
-description: Use when investigating LLM prompt failures in an EPOCH prompt_tune round — sampling TRAIN-split failures, identifying a failure pattern, and proposing one targeted prompt edit with rationale, without inspecting the EVAL split.
+description: Use when investigating an EPOCH prompt_tune round to choose a prompt-optimization method — few-shot, chain-of-thought, system-refinement, DSPy, or GEPA — from the observed TRAIN failures. Routes to the matching method skill; the investigator picks the method as the round's hypothesis and the executor runs it.
 ---
 
-# Prompt Tuning
+# Prompt Tuning (Router)
 
-Diagnose why an LLM prompt fails on the TRAIN split and propose one targeted edit. This is
-the investigator's technique for `prompt_tune` rounds — it ends at a written hypothesis,
-not at an implemented change.
+Pick the prompt-optimization method for this round. This skill is a **router**: it does not
+edit prompts itself. The investigator diagnoses TRAIN failures, chooses ONE method here (the
+round's hypothesis), and the executor runs that method's optimizer.
 
-## When to Use
-
-- The investigator is analyzing a `prompt_tune` round.
-- You have failing examples and need to find the pattern behind them.
+> Deep round workflow: `skills/epoch/references/prompt_tune.md`. Method implementations live
+> in the per-method skills below.
 
 ## Split Discipline
 
-- **TRAIN split only.** Never read EVAL examples — diagnosing against EVAL is overfitting.
+- **TRAIN split only** for selection and optimization. Never read `eval.jsonl`.
+- Optimizers that need a validation signal split TRAIN internally — they must not touch EVAL.
 
-## Process
+## Methods
 
-1. Sample failing TRAIN examples (`investigation.samples` from `epoch_run.yaml`).
-2. Group failures by symptom (format errors, missing constraints, ambiguous instructions, hallucinations).
-3. Identify the single dominant pattern.
-4. Propose **one** prompt edit that targets it, with rationale tying edit → pattern.
+| Method | Skill | Best when | Cost |
+|--------|-------|-----------|------|
+| Few-shot | `pt-few-shot` | Model understands the task but needs concrete examples; format drift | ~0–K calls |
+| Chain-of-thought | `pt-chain-of-thought` | Failures need multi-step reasoning (negation, contrast, comparison) | 0 |
+| System refinement | `pt-system-refinement` | Instructions are vague/ambiguous; a targeted rewrite would help | a few calls |
+| DSPy | `pt-dspy` | Want automatic joint instruction + few-shot optimization, larger budget | high (100s) |
+| GEPA | `pt-gepa` | Hard task, want reflective evolution from failure traces; highest ceiling | high (100s) |
 
-## Common Failure Patterns → Edits
+## Selection Guide (investigator)
 
-| Pattern | Typical edit |
-|---------|--------------|
-| Output format drifts | Add an explicit format spec + one example |
-| Ignores a constraint | State the constraint as a hard rule, early |
-| Ambiguous on edge cases | Add a decision rule for the edge case |
-| Hallucinates facts | Add "only use provided context; say 'unknown' otherwise" |
-| Over-verbose | Add a length/structure bound |
+```
+Start cheap, escalate only if cheaper methods stall.
 
-## Scripts
+Round budget small / first optimization round?
+  → pt-chain-of-thought (if reasoning failures) or pt-few-shot (if example-shaped failures)
+Instructions themselves unclear or contradictory?
+  → pt-system-refinement
+Cheaper methods plateaued AND budget available?
+  → pt-dspy (joint instruction+demo search)
+DSPy plateaued OR task needs trace-level reflection?
+  → pt-gepa
+```
 
-- `scripts/sample_failures.py` — sample N failing rows from a TRAIN predictions file
-  (expects rows with `input`, `expected`, `predicted`, `correct`).
-  ```bash
-  python scripts/sample_failures.py --preds train_preds.jsonl --n 10
-  ```
+Escalation order by cost/power: **CoT / few-shot → system-refinement → DSPy → GEPA**.
+One method per round (one hypothesis). On a retry, pick a *different* method or config than
+the rejected attempt.
+
+## Shared Optimizer Contract
+
+Every method skill ships `scripts/optimize.py` with the SAME interface, so the executor runs
+any method identically:
+
+```bash
+python <method-skill>/scripts/optimize.py \
+  --project projects/<slug> \
+  --train   projects/<slug>/data/train.jsonl \
+  --prompts projects/<slug>/src/prompts \
+  --out     projects/<slug>/src/prompts \
+  --config  '<method-specific JSON>' \
+  --seed    42
+```
+
+**Contract rules (all methods MUST honor):**
+1. **TRAIN-only input.** Read `--train` and current `--prompts`. Never open `eval.jsonl`.
+2. **Output prompt files** into `--out`: rewrite `system.txt` / `task.txt` and/or write
+   `examples.txt` (few-shot demos). `task.txt` keeps the `{text}` placeholder.
+3. **Parsing invariant.** The emitted prompt MUST keep the project's output contract — for
+   classification, the final line is a single label word — so `evaluate.py` still parses.
+4. **Report.** Write `optimize_report.json` to the run dir (or `--out`) with: `method`,
+   `config`, `n_demos`, `n_llm_calls`, `internal_train_score`, `notes`.
+5. **Determinism.** Honor `--seed` where the method supports it.
+6. **Model lock.** The *task* model stays as configured (`llm.model`). DSPy/GEPA may use a
+   separate `optimizer_model` / `reflection_model` for the search only — never to answer EVAL.
+
+`evaluate.py` must prepend `examples.txt` to the task prompt when the file exists (few-shot /
+DSPy demos). The `create-project` template wires this.
 
 ## Common Mistakes
 
-- Proposing several edits at once — one hypothesis per round; bundle = no attribution.
-- Reading EVAL examples to "understand the task better" — breaks the split.
-- Rewriting the whole prompt — large rewrites make the metric delta unattributable.
+- Picking two methods in one round — one hypothesis, or attribution breaks.
+- Letting an optimizer read EVAL for its validation signal — split TRAIN instead.
+- Emitting a prompt whose output no longer ends in a single label word — breaks the parser.
