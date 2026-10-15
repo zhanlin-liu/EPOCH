@@ -1,7 +1,0 @@
-Classify the sentiment of the following movie review as either positive or negative.
-
-Think step by step: in 1-3 sentences, identify what the review is expressing — consider the overall rhetorical direction, any contrast structures, and the implied attitude toward the subject. Then, on its own final line, output exactly one word: positive or negative.
-
-Review: {text}
-
-Reasoning and sentiment:
